@@ -3,31 +3,26 @@ import { client } from "./database.js"
 const app = express()
 app.use(json())
 
-async function runStableAPIConnect() {
-  try {
-    await client.connect();
-    const result = await client.db('admin').command({ ping: 1 });
-    console.log(
-      'Pinged your deployment. You successfully connected to MongoDB!'
-    );
-    return result;
-  } catch(err) {
-    console.log(err)
-  }
-  finally {
-    await client.close();
-  }
+
+async function sendData(data) {
+    try {
+        await client.connect()
+        const result = await client.db("snippets").collection("code-snippets").insertOne(data)
+        console.log(result)
+    } catch (error) {
+        console.log(error)
+    }finally {
+        await client.close()
+    }
+
 }
 
-app.get("/", (req,res) => {
-    runStableAPIConnect()
-    res.send("done")
-})
 
-app.post("/submit", (req,res) => {
-    console.log({name: req.body.userName ,code: req.body.snippet, id: crypto.randomUUID()})
+
+app.post("/submit", async(req,res) => {
+    const body = {code: req.body.snippet, _id: crypto.randomUUID(),name: req.body.userName }
+    await sendData(body)
     res.send("hello world")
-    
 })
 
 app.listen(3000, () => {
