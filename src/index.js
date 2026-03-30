@@ -1,7 +1,9 @@
 import express, { json } from "express"
+import cors from "cors"
 import { client } from "./database.js"
 const app = express()
 app.use(json())
+app.use(cors())
 
 
 async function sendData(data) {
